@@ -116,21 +116,49 @@ export default function Controls({
       )}
 
       {/* Action Buttons */}
-      <div className="flex space-x-3 pt-4 border-t border-gray-200">
+      <div className="space-y-3 pt-4 border-t border-gray-200">
         <button
           onClick={onReset}
-          className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors"
+          className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors"
         >
           Reset to Default
         </button>
         
         {hasResult && (
-          <button
-            onClick={onDownload}
-            className="flex-1 px-4 py-2 text-sm font-medium text-white bg-brave-pink border border-transparent rounded-lg hover:bg-brave-pink/90 transition-colors"
-          >
-            Download Result
-          </button>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button
+              onClick={onDownload}
+              className="px-4 py-2 text-sm font-medium text-white bg-brave-pink border border-transparent rounded-lg hover:bg-brave-pink/90 transition-colors"
+            >
+              📥 Download
+            </button>
+            <button
+              onClick={() => {
+                if (navigator.share) {
+                  // Use native share API if available
+                  navigator.share({
+                    title: 'Brave Pink & Hero Green Filter',
+                    text: 'Check out this filtered image!',
+                    url: window.location.href
+                  }).catch(() => {
+                    // Fallback to copy link
+                    navigator.clipboard.writeText(window.location.href);
+                    alert('Link copied to clipboard!');
+                  });
+                } else {
+                  // Fallback for browsers without share API
+                  navigator.clipboard.writeText(window.location.href).then(() => {
+                    alert('Link copied to clipboard!');
+                  }).catch(() => {
+                    alert('Share this page manually');
+                  });
+                }
+              }}
+              className="px-4 py-2 text-sm font-medium text-white bg-hero-green border border-transparent rounded-lg hover:bg-hero-green/90 transition-colors"
+            >
+              📤 Share
+            </button>
+          </div>
         )}
       </div>
     </div>
