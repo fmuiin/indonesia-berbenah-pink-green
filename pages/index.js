@@ -115,74 +115,53 @@ export default function Home() {
 
   const handleDownload = useCallback(() => {
     if (processedSrc) {
-      try {
-        // Method 1: Try standard download first
-        const link = document.createElement('a');
-        link.href = processedSrc;
-        link.download = 'brave-pink-hero-green-filter.png';
-        link.style.display = 'none';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } catch (error) {
-        // Method 2: Fallback for mobile browsers
-        try {
-          // Create a new window/tab with the image
-          const newWindow = window.open();
-          if (newWindow) {
-            newWindow.document.write(`
-              <html>
-                <head>
-                  <title>Brave Pink & Hero Green Filter</title>
-                  <style>
-                    body { 
-                      margin: 0; 
-                      padding: 20px; 
-                      background: #f0f0f0; 
-                      font-family: Arial, sans-serif;
-                      text-align: center;
-                    }
-                    img { 
-                      max-width: 100%; 
-                      height: auto; 
-                      border-radius: 8px;
-                      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                    }
-                    .download-btn {
-                      display: inline-block;
-                      margin-top: 20px;
-                      padding: 12px 24px;
-                      background: #E44C99;
-                      color: white;
-                      text-decoration: none;
-                      border-radius: 8px;
-                      font-weight: bold;
-                    }
-                    .download-btn:hover {
-                      background: #d43d8a;
-                    }
-                  </style>
-                </head>
-                <body>
-                  <h2>Brave Pink & Hero Green Filter</h2>
-                  <img src="${processedSrc}" alt="Filtered Image" />
-                  <br>
-                  <a href="${processedSrc}" download="brave-pink-hero-green-filter.png" class="download-btn">
-                    Download Image
-                  </a>
-                  <p style="margin-top: 20px; color: #666;">
-                    Long press the image and select "Save to Photos" or "Download"
-                  </p>
-                </body>
-              </html>
-            `);
-            newWindow.document.close();
+      // Convert data URL to blob for better mobile compatibility
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        
+        canvas.toBlob((blob) => {
+          if (blob) {
+            // Create blob URL
+            const blobUrl = URL.createObjectURL(blob);
+            
+            // Method 1: Try direct download with blob
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = 'brave-pink-hero-green-filter.png';
+            link.style.display = 'none';
+            
+            // Add to DOM, click, then remove
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Clean up blob URL after a delay
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+            
+            // Show success message only on mobile devices
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                            window.innerWidth <= 768 || 
+                            ('ontouchstart' in window);
+            
+            if (isMobile) {
+              setTimeout(() => {
+                alert('Download berhasil! Jika tidak muncul, coba long press pada gambar hasil dan pilih "Save to Photos"');
+              }, 500);
+            }
+          } else {
+            // Fallback: Show instructions
+            alert('Download tidak tersedia. Silakan:\n\n1. Long press pada gambar hasil\n2. Pilih "Save to Photos" atau "Download"');
           }
-        } catch (fallbackError) {
-          // Method 3: Final fallback - show alert with instructions
-          alert('Download tidak tersedia di browser ini. Silakan:\n\n1. Long press pada gambar hasil\n2. Pilih "Save to Photos" atau "Download"\n3. Atau screenshot halaman ini');
-        }
-      }
+        }, 'image/png', 0.9);
+      };
+      
+      img.src = processedSrc;
     }
   }, [processedSrc]);
 
@@ -243,11 +222,14 @@ export default function Home() {
 
           {/* Mobile Instructions */}
           <div className="mt-8 max-w-4xl mx-auto">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h4 className="text-sm font-semibold text-blue-800 mb-2">📱 Mobile Users:</h4>
-              <p className="text-sm text-blue-700">
-                Jika tombol download tidak bekerja, coba <strong>long press</strong> pada gambar hasil dan pilih "Save to Photos" atau "Download"
-              </p>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <h4 className="text-sm font-semibold text-yellow-800 mb-2">📱 Cara Download di HP:</h4>
+              <div className="text-sm text-yellow-700 space-y-1">
+                <p>1. Klik tombol "Download Result" di atas</p>
+                <p>2. Jika tidak berhasil, <strong>long press</strong> pada gambar hasil</p>
+                <p>3. Pilih "Save to Photos" atau "Download"</p>
+                <p>4. Atau screenshot halaman ini</p>
+              </div>
             </div>
           </div>
 

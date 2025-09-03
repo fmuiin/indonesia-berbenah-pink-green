@@ -125,40 +125,12 @@ export default function Controls({
         </button>
         
         {hasResult && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <button
-              onClick={onDownload}
-              className="px-4 py-2 text-sm font-medium text-white bg-brave-pink border border-transparent rounded-lg hover:bg-brave-pink/90 transition-colors"
-            >
-              📥 Download
-            </button>
-            <button
-              onClick={() => {
-                if (navigator.share) {
-                  // Use native share API if available
-                  navigator.share({
-                    title: 'Brave Pink & Hero Green Filter',
-                    text: 'Check out this filtered image!',
-                    url: window.location.href
-                  }).catch(() => {
-                    // Fallback to copy link
-                    navigator.clipboard.writeText(window.location.href);
-                    alert('Link copied to clipboard!');
-                  });
-                } else {
-                  // Fallback for browsers without share API
-                  navigator.clipboard.writeText(window.location.href).then(() => {
-                    alert('Link copied to clipboard!');
-                  }).catch(() => {
-                    alert('Share this page manually');
-                  });
-                }
-              }}
-              className="px-4 py-2 text-sm font-medium text-white bg-hero-green border border-transparent rounded-lg hover:bg-hero-green/90 transition-colors"
-            >
-              📤 Share
-            </button>
-          </div>
+          <button
+            onClick={onDownload}
+            className="w-full px-4 py-3 text-sm font-medium text-white bg-brave-pink border border-transparent rounded-lg hover:bg-brave-pink/90 transition-colors"
+          >
+            📥 Download Result
+          </button>
         )}
       </div>
     </div>
